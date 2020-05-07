@@ -4,9 +4,8 @@ import string
 import random
 import re
 import pprint
-
-# This is the container containing user data, I am using the Data Structure Dictionary as container
-hngAccounts = {'damilola5@gmail.com': {'password': 'dammy', 'first_name': 'Damilola', 'last_name': 'Adeoye'}}
+import time
+import os
 
 # It  is the regex expression from inbuilt function "re" to verify the email address is a valid one
 regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
@@ -15,18 +14,20 @@ regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
 through first and last name including the random generated characters"""
 
 """This function handles the home page"""
+
+
 def homePage():
-    print("\n-------------------------------------------------------WELCOME TO SNG BANK-------------------------------------------------------\n")
+    print(
+        "\n-------------------------------------------------------WELCOME TO SNG BANK-------------------------------------------------------\n")
     print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HOME PAGE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
     print("Kindly use the key '1' or '2' to navigate through\n")
     print("1. STAFF LOGIN:")
     print("2. CLOSE APP")
 
-
-    promptQuestion = int(input("Reply: "))
-    if (promptQuestion == 1):
+    promptQuestion = input("Reply: ")
+    if (promptQuestion == '1'):
         staffLogin()
-    elif (promptQuestion == 2):
+    elif (promptQuestion == '2'):
         exit()
     else:
         print("Enter a valid option")
@@ -48,19 +49,39 @@ def homeAnyOther():
     else:
         exit()
 
+
 def staffLogin():
     print("\n--------------------------LOG IN--------------------------")
-    print("\n<=<=<=<=<=NOTE THAT YOUR EMAIL MUST HAVE THE DOMAIN 'snb.com'=>=>=>=>=>\n")
-    staffUserName = input("Enter email address: ").lower()
+    print("\n<=<=<=<=<=NOTE THAT YOUR DETAILS ARE SECURE=>=>=>=>=>\n")
+    staffUserName = input("Enter username: ").lower()
     staffPassword = input("Enter password: ")
-    if staffUserName in hngAccounts.keys():
-        if hngAccounts[staffUserName]['password'] == staffPassword:
-            print("You're logged in\n")
-            pprint.pprint(hngAccounts[staffUserName])
-            staffName = "Damilola Adeoye"
-            staffPortal(staffUserName,staffName)
+    searchfile = open(r'DataFolder\staff.txt', "r")
+    for line in searchfile:
+        if staffUserName in line:
+            theString = line
+            password = theString.split(" ")[1]
+            if staffPassword == password:
+                print("You're logged in\n")
+                staffName = theString.split(" ")[3] + " " + theString.split(" ")[4]
+                searchfile.close()
+                staffPortal(staffUserName, staffName)
+            else:
+                searchfile.close()
+                print("You are not authorized!\nWrong Password!!!")
+                print("\n-------------KINDLY CHOOSE WHAT NEXT-------------\n")
+                print("1. Do you want to attempt the log in again?")
+                print("2. Do you want to return to home page?")
+                promptQuestion = input("Reply: ")
+                if (promptQuestion == '1'):
+                    staffLogin()
+                elif (promptQuestion == '2'):
+                    homePage()
+                else:
+                    print("Invalid Input")
+                    exit()
         else:
-            print("You are not authorized!\nWrong Password!!!")
+            searchfile.close()
+            print("You are not authorized!\nWrong Email!!!")
             print("\n-------------KINDLY CHOOSE WHAT NEXT-------------\n")
             print("1. Do you want to attempt the log in again?")
             print("2. Do you want to return to home page?")
@@ -72,21 +93,17 @@ def staffLogin():
             else:
                 print("Invalid Input")
                 exit()
-    else:
-        print("You are not authorized!\nWrong Email!!!")
-        print("\n-------------KINDLY CHOOSE WHAT NEXT-------------\n")
-        print("1. Do you want to attempt the log in again?")
-        print("2. Do you want to return to home page?")
-        promptQuestion = input("Reply: ")
-        if (promptQuestion == '1'):
-            staffLogin()
-        elif (promptQuestion == '2'):
-            homePage()
-        else:
-            print("Invalid Input")
-            exit()
+
+
 
 def staffPortal(userName, name):
+    print("\n--------------------------STAFF PORTAL--------------------------")
+    baconFile = open('DataFolder\\UserSession.txt', 'w')
+    ts = time.gmtime()
+    currentTime = time.strftime("%Y-%m-%d %H:%M:%S", ts)
+    userSessionText = name.upper() + " with username " + userName + " logged in at about the time " + currentTime + " GMT\n"
+    baconFile.write(userSessionText)
+    baconFile.close()
     print(f"\nWelcome back {name}!\nHow may i help?")
     print("\n-------------KINDLY CHOOSE WHAT NEXT-------------\n")
     print("1. Create new bank account")
@@ -94,160 +111,81 @@ def staffPortal(userName, name):
     print("3. Logout\n")
     promptQuestion = input("Reply: ")
     if (promptQuestion == '1'):
-        createAccount()
+        createAccount(userName, name)
     elif (promptQuestion == '2'):
-        checkAccountDetails()
+        checkAccountDetails(userName, name)
     elif (promptQuestion == '3'):
-        print(f"Thank you {name}, bye for now")
+        print(f"\nThank you {name}, bye for now")
+        os.remove(r"DataFolder\UserSession.txt")
         staffLogin()
     else:
+        os.remove(r"DataFolder\UserSession.txt")
         exit()
 
-def createAccount():
-    accountList = ["Savings","Current","Business", "Domiciliary", "Fixed"]
+
+def createAccount(userName, name):
+    accountList = ["Savings", "Current", "Business", "Domiciliary", "Fixed"]
     print("\n-------------------------- CREATE NEW ACCOUNT --------------------------")
     print("Kindly fill the details below\n")
-    userAccountName = input("What is your full name: ")
-    userOpeningBalance = int(input("What amouunt is been used: "))
+    userAccountFirstName = input("What is your first name: ")
+    userAccountLastName = input("What is your last name: ")
+    userAccountThirdName = input("What is your third name: ")
+    userBalance = int(input("What amount is been used to open: "))
     print("\nSelect your type of Account below")
-    print("1. Savings\n2. Current\n3. Business\n4. Domiciliary\5. Fixed")
-    userAccountType = accountList[int(input("Fill it here.")) - 1]
+    print("1. Savings\n2. Current\n3. Business\n4. Domiciliary\n5. Fixed")
+    userAccountType = accountList[int(input("\nFill it here. ")) - 1]
     userEmail = input("Enter a valid email address: ").lower();
     if (re.search(regex, userEmail)):
-        if verifyAccount(userEmail):
-            print("Email Address Already exists! Try again")
-            homeAnyOther()
-        else:
-            domain = userEmail.split('@')[1]
-            if domain == "hng.tech.com":
-                first_name = input("Enter your first name: ").lower()
-                last_name = input("Enter your last name: ").lower()
-                PasswordConfirmation(userEmail, first_name, last_name)
-            else:
-                print("Invalid Email Address Domain\nKindly enter the company's domain")
-                createAccount()
+        userAccountNumber = AccountGenerator()
+        CustomerFile = open('DataFolder\\customer.txt', 'a')
+        customerData = userAccountNumber + " " + str(userBalance) + " " + userAccountFirstName + " " + userAccountThirdName + " " + \
+                       userAccountLastName + " " + userEmail + " " + userAccountType + "\n"
+        CustomerFile.write(customerData)
+        CustomerFile.close()
+        print(f"\n{userAccountFirstName} {userAccountLastName} just opened a {userAccountType} account with SNB\n"
+              f"Your Account number is {userAccountNumber} with #{userBalance:,} balance")
+        staffPortal(userName, name)
     else:
         print("Invalid Email Address")
-        createAccount();
+        createAccount(userName, name)
 
 
-def checkAccountDetails():
-    checkForDetails = "thank you for now"
+def checkAccountDetails(userName,name):
+    print("\n-------------------------- CHECK ACCOUNT DETAILS --------------------------")
     userAccountNumber = input("What is your Account Number? ")
+    CustomerSearchfile = open(r'DataFolder\customer.txt', "r")
+    for line in CustomerSearchfile:
+        if userAccountNumber in line:
+            theString = line
+            customerAccountBalance = int(theString.split(" ")[1])
+            customerAccountName = theString.split(" ")[2].capitalize()+" " + theString.split(" ")[3].capitalize() + " " + theString.split(" ")[4].capitalize()
+            customerAccountEmail = theString.split(" ")[5]
+            customerAccountType = theString.split(" ")[6]
+            print(f"\nAccount Number: {userAccountNumber}\nAccount Name: {customerAccountName}\n"
+                  f"Account Balance: #{customerAccountBalance:,}\nAccount Type: {customerAccountType}\n"
+                  f"Account Email: {customerAccountEmail}")
+            CustomerSearchfile.close()
+            staffPortal(userName, name)
+        else:
+            print("\nYou are not authorized!\nAccount Number!!!")
+            CustomerSearchfile.close()
+            staffPortal(userName, name)
+
+
+
 def AccountGenerator():
-    accountPrefix = ["00","01"]
-    suffixGen = random.randrange(10000000,99999999)
-    randomPrefixGen = random.randint(0,1)
-    finalAccount = accountPrefix[randomPrefixGen] + str(suffixGen)
-    return finalAccount  # releases the output of the input
-
-
-def PasswordGenerator(first_name, last_name):
-    size = 5
-    chars = string.ascii_uppercase + string.digits + string.ascii_lowercase  # specifies the type of chracter needed through ASCII
+    accountPrefix = ["00", "01"]
+    size = 8
+    chars = string.digits  # specifies the type of chracter needed through ASCII
     randomString = ''.join(random.choice(chars) for _ in range(size))
-    finalPassword = first_name[0:2] + last_name[-2:] + randomString
-    return finalPassword  # releases the output of the input
-
-
-"""Takes care of the second part of Task 4
-By verifying that the length is of length 7 or above 
-"""
-
-
-def PersonalizedPasswordGenerator(newEmail, first_name, last_name):
-    newPassword = input("Enter a valid password of length 7 and above : ")
-    if ((len(newPassword)) >= 7):
-        confirmNewPassword = input("Confirm password for entry: ")
-        if (newPassword == confirmNewPassword):
-            hngAccounts[newEmail] = {'password': newPassword, 'first_name': first_name, 'last_name': last_name}
-            print("Your account has been created successfully!")
-            print("\nKindly Login to confirm your sign-up")
-            authenticateUser()  # Log-in page function
-        else:
-            PersonalizedPasswordGenerator(newEmail, first_name, last_name)
-    else:
-        print("\nInput a password that is above length 7")
-        PersonalizedPasswordGenerator(newEmail, first_name, last_name)
-
-
-"""Takes care of Task 3, by populating the Random Password Generated.
-Asks the User for permission to use it ........"""
-
-
-def PasswordConfirmation(newEmail, first_name, last_name):
-    password = PasswordGenerator(first_name, last_name);
-    print("Your password is " + password)
-    reply = input("Are you satisfied with it? Y/N ")
-    if (reply.lower() == 'y'):
-        hngAccounts[newEmail] = {'password': password, 'first_name': first_name, 'last_name': last_name}
-        print("Your account has been created successfully!\n")
-        pprint.pprint(hngAccounts[newEmail])
-        print("\nKindly Login to confirm your sign-up")
-        authenticateUser()
-    elif (reply.lower() == 'n'):
-        PersonalizedPasswordGenerator(newEmail, first_name, last_name)
-    else:
-        createAccount()
-    return
-
-
-"""It is the function used to create account for new employees"""
-
-
-
-
-
-
-
-
-"""This function verifies that an email is stored in our container(database)"""
-
-
-def verifyAccount(email):
-    if email in hngAccounts.keys():
-        return email
-    return False
-
-
-"""This function handles the Log-In page"""
-
-
-def authenticateUser():
-    print("\n--------------------------LOG IN--------------------------")
-    print("\n<=<=<=<=<=NOTE THAT YOUR EMAIL MUST HAVE THE DOMAIN 'hng.tech.com'=>=>=>=>=>\n")
-    userEmail = input("Enter email address: ").lower()
-    userPassword = input("Enter password: ")
-    if userEmail in hngAccounts.keys():
-        if hngAccounts[userEmail]['password'] == userPassword:
-            print("You're logged in\n")
-            pprint.pprint(hngAccounts[userEmail])
-            homeAnyOther()
-
-    else:
-        print("You are not authorized!\nWrong Email or password!!!")
-        print("\n-------------KINDLY CHOOSE WHAT NEXT-------------\n")
-        print("1. Do you want to attempt the log in again?")
-        print("2. Do you want to return to home page?")
-        print("3. Do you want to open an Account with us\n")
-        promptQuestion = input("Reply: ")
-        if (promptQuestion == '1'):
-            authenticateUser()
-        elif (promptQuestion == '2'):
-            homePage()
-        elif (promptQuestion == '3'):
-            createAccount()
-        else:
-            exit()
-
-
-
-
-
+    randomPrefixGen = random.randint(0, 1)
+    finalAccount = accountPrefix[randomPrefixGen] + randomString
+    return finalAccount  # releases the output of the input
 
 
 # Creates an infinite loop to run the program
 # It also handles Task 5
+print("Follow the format in the staff.txt file to create and authenticate staff permission")
 var = 1
 while var == 1:
     homePage()
