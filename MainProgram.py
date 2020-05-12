@@ -16,9 +16,8 @@ through first and last name including the random generated characters"""
 """This function handles the home page"""
 
 
-def homePage():
-    print(
-        "\n-------------------------------------------------------WELCOME TO SNG BANK-------------------------------------------------------\n")
+def homePage():         #It is the home page where all operations works underneath   
+    print("\n-------------------------------------------------------WELCOME TO SNG BANK-------------------------------------------------------\n")
     print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HOME PAGE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
     print("Kindly use the key '1' or '2' to navigate through\n")
     print("1. STAFF LOGIN:")
@@ -50,7 +49,7 @@ def homeAnyOther():
         exit()
 
 
-def staffLogin():
+def staffLogin():  #Login Portal for Staffs with appropriate credentials
     print("\n--------------------------LOG IN--------------------------")
     print("\n<=<=<=<=<=NOTE THAT YOUR DETAILS ARE SECURE=>=>=>=>=>\n")
     staffUserName = input("Enter username: ").lower()
@@ -95,8 +94,7 @@ def staffLogin():
                 exit()
 
 
-
-def staffPortal(userName, name):
+def staffPortal(userName, name):            #It Creates a portal or dashboard for staffs to perform operations in
     print("\n--------------------------STAFF PORTAL--------------------------")
     baconFile = open('DataFolder\\UserSession.txt', 'w')
     ts = time.gmtime()
@@ -123,7 +121,7 @@ def staffPortal(userName, name):
         exit()
 
 
-def createAccount(userName, name):
+def createAccount(userName, name):      #Function that creates account
     accountList = ["Savings", "Current", "Business", "Domiciliary", "Fixed"]
     print("\n-------------------------- CREATE NEW ACCOUNT --------------------------")
     print("Kindly fill the details below\n")
@@ -135,10 +133,11 @@ def createAccount(userName, name):
     print("1. Savings\n2. Current\n3. Business\n4. Domiciliary\n5. Fixed")
     userAccountType = accountList[int(input("\nFill it here. ")) - 1]
     userEmail = input("Enter a valid email address: ").lower();
-    if (re.search(regex, userEmail)):
-        userAccountNumber = AccountGenerator()
+    if (re.search(regex, userEmail) and userAccountFirstName.isalpha() and userAccountLastName.isalpha() and userAccountThirdName.isalpha()):
+        userAccountNumber = AccountNumberGenerator()
         CustomerFile = open('DataFolder\\customer.txt', 'a')
-        customerData = userAccountNumber + " " + str(userBalance) + " " + userAccountFirstName + " " + userAccountThirdName + " " + \
+        customerData = userAccountNumber + " " + str(
+            userBalance) + " " + userAccountFirstName + " " + userAccountThirdName + " " + \
                        userAccountLastName + " " + userEmail + " " + userAccountType + "\n"
         CustomerFile.write(customerData)
         CustomerFile.close()
@@ -150,7 +149,7 @@ def createAccount(userName, name):
         createAccount(userName, name)
 
 
-def checkAccountDetails(userName,name):
+def checkAccountDetails(userName, name):        #Checks for account details and displays it.
     print("\n-------------------------- CHECK ACCOUNT DETAILS --------------------------")
     userAccountNumber = input("What is your Account Number? ")
     CustomerSearchfile = open(r'DataFolder\customer.txt', "r")
@@ -158,7 +157,8 @@ def checkAccountDetails(userName,name):
         if userAccountNumber in line:
             theString = line
             customerAccountBalance = int(theString.split(" ")[1])
-            customerAccountName = theString.split(" ")[2].capitalize()+" " + theString.split(" ")[3].capitalize() + " " + theString.split(" ")[4].capitalize()
+            customerAccountName = theString.split(" ")[2].capitalize() + " " + theString.split(" ")[
+                3].capitalize() + " " + theString.split(" ")[4].capitalize()
             customerAccountEmail = theString.split(" ")[5]
             customerAccountType = theString.split(" ")[6]
             print(f"\nAccount Number: {userAccountNumber}\nAccount Name: {customerAccountName}\n"
@@ -172,8 +172,7 @@ def checkAccountDetails(userName,name):
             staffPortal(userName, name)
 
 
-
-def AccountGenerator():
+def AccountNumberGenerator():       #Function that generates Account Number
     accountPrefix = ["00", "01"]
     size = 8
     chars = string.digits  # specifies the type of chracter needed through ASCII
